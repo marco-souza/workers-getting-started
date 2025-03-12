@@ -1,0 +1,9 @@
+name = "workers-getting-started"
+main = "src/index.ts"
+compatibility_date = "2025-03-11"
+
+[observability]
+enabled = true
+
+[ai]
+binding = "AI"
