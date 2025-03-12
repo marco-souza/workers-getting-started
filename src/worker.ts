@@ -40,6 +40,17 @@ app.get("/movies", async (c) => {
 	return c.json(movies);
 });
 
+app.get("/favorites", async (c) => {
+	const { num = "1" } = c.req.query();
+	const sql = "SELECT * from 'movies' order by rating desc limit ?1";
+	const resp = await c.env.DB.prepare(sql)
+		.bind(num) // bind values to query variables
+		.all();
+	const movies = resp.results;
+
+	return c.json(movies);
+});
+
 app.get("/:username", async (c) => {
 	const username = c.req.param("username");
 	const cachedResp = await c.env.CACHE.get(`${username}:repos`);
