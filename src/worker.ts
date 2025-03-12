@@ -1,5 +1,7 @@
 import { Ai } from "@cloudflare/ai";
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { z } from "zod";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -33,8 +35,10 @@ app.get("/", async (c) => {
 });
 
 app.get("/movies", async (c) => {
-	const sql = "SELECT * from 'movies'";
-	const resp = await c.env.DB.prepare(sql).all();
+	const resp = await c.env.DB
+		// select all movies
+		.prepare("SELECT * from 'movies'")
+		.all();
 	const movies = resp.results;
 
 	return c.json(movies);
@@ -42,14 +46,52 @@ app.get("/movies", async (c) => {
 
 app.get("/favorites", async (c) => {
 	const { num = "1" } = c.req.query();
-	const sql = "SELECT * from 'movies' order by rating desc limit ?1";
-	const resp = await c.env.DB.prepare(sql)
-		.bind(num) // bind values to query variables
+	const resp = await c.env.DB
+		// select all movies and order by rating
+		.prepare("SELECT * from 'movies' order by rating desc limit ?1")
+		// bind values to query variables
+		.bind(num)
 		.all();
 	const movies = resp.results;
 
 	return c.json(movies);
 });
+
+const UpdateMovieRating = z.object({
+	rating: z
+		.number()
+		// between 1 and 5
+		.min(1)
+		.max(5),
+});
+
+app.put(
+	"/movies/:id",
+	// add zod validator middleware
+	zValidator("json", UpdateMovieRating),
+	async (c) => {
+		const { id } = c.req.param();
+		const body = c.req.valid("json");
+
+		console.log({ id, body });
+
+		const resp = await c.env.DB
+			// update movie rating
+			.prepare("UPDATE movies SET rating = ?1 WHERE id = ?2 RETURNING *")
+			// bind values to query variables
+			.bind(body.rating, id)
+			.run();
+
+		if (!resp.success) {
+			console.log(resp.error);
+			return c.json({ error: resp.error, message: "Failed to update rating" });
+		}
+
+		console.log(resp);
+
+		return c.json(resp.results);
+	},
+);
 
 app.get("/:username", async (c) => {
 	const username = c.req.param("username");
