@@ -6,7 +6,7 @@ import {
 	waitOnExecutionContext,
 } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
-import worker from "../src/index";
+import worker from "../src/worker";
 
 // For now, you'll need to do something like this to get a correctly-typed
 // `Request` to pass to `worker.fetch()`.

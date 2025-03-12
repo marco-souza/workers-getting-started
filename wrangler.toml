@@ -1,5 +1,5 @@
 name = "workers-getting-started"
-main = "src/index.ts"
+main = "src/worker.ts"
 compatibility_date = "2025-03-11"
 
 [observability]
