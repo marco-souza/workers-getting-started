@@ -1,12 +1,7 @@
 import { Ai } from "@cloudflare/ai";
 import { Hono } from "hono";
 
-export interface Bindings {
-	AI: Ai;
-	CACHE: KVNamespace;
-}
-
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Env }>();
 
 app.get("/", async (c) => {
 	const query = c.req.query();
@@ -49,6 +44,10 @@ app.get("/:username", async (c) => {
 	});
 	const repos = await res.json();
 	const { length: count } = repos as unknown[];
+
+	c.env.CACHE.put(`${username}-repos`, JSON.stringify(repos), {
+		expirationTtl: 60 * 60,
+	});
 
 	return c.json({ repos, count });
 });
