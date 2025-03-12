@@ -11,3 +11,9 @@ binding = "AI"
 [[kv_namespaces]]
 binding = "CACHE"
 id = "ea30a4df573e4533ba5dfece22c6a7b9"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "movie-example"
+database_id = "a742b812-2f4a-4c54-8de5-6f21c860cee4"
+
