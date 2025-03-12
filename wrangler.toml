@@ -7,3 +7,7 @@ enabled = true
 
 [ai]
 binding = "AI"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "ea30a4df573e4533ba5dfece22c6a7b9"
