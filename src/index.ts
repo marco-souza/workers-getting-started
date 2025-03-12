@@ -12,10 +12,10 @@
  */
 
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		console.log(request.cf)
-		return new Response(JSON.stringify({ hello: "World" }), {
-			headers: { "content-type": "application/json" }
-		});
-	}
+  async fetch(request, env, ctx): Promise<Response> {
+    console.log(request.cf);
+    return new Response(JSON.stringify({ hello: "World" }), {
+      headers: { "content-type": "application/json" },
+    });
+  },
 } satisfies ExportedHandler<Env>;
