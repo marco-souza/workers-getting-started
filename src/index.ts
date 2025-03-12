@@ -34,4 +34,20 @@ app.get("/", async c => {
 	return c.json(res);
 });
 
+app.get("/:username", async c => {
+	const username = c.req.param("username");
+
+	console.log({ username })
+
+	const res = await fetch(`https://api.github.com/users/${username}/repos`, {
+		headers: {
+			"User-Agent": "CF-Worker",
+		},
+	});
+	const repos = await res.json();
+	const { length: count } = repos as unknown[]
+
+	return c.json({ repos, count });
+})
+
 export default app satisfies ExportedHandler<Env>;
