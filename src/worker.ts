@@ -32,6 +32,14 @@ app.get("/", async (c) => {
 	return c.json(res);
 });
 
+app.get("/movies", async (c) => {
+	const sql = "SELECT * from 'movies'";
+	const resp = await c.env.DB.prepare(sql).all();
+	const movies = resp.results;
+
+	return c.json(movies);
+});
+
 app.get("/:username", async (c) => {
 	const username = c.req.param("username");
 	const cachedResp = await c.env.CACHE.get(`${username}:repos`);
