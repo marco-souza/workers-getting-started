@@ -34,8 +34,13 @@ app.get("/", async (c) => {
 
 app.get("/:username", async (c) => {
 	const username = c.req.param("username");
+	const cachedResp = await c.env.CACHE.get(`${username}:repos`);
 
-	console.log({ username });
+	if (cachedResp) {
+		const { repos, count } = JSON.parse(cachedResp);
+		console.log("cached");
+		return c.json({ repos, count });
+	}
 
 	const res = await fetch(`https://api.github.com/users/${username}/repos`, {
 		headers: {
@@ -44,12 +49,13 @@ app.get("/:username", async (c) => {
 	});
 	const repos = await res.json();
 	const { length: count } = repos as unknown[];
+	const output = { repos, count };
 
-	c.env.CACHE.put(`${username}-repos`, JSON.stringify(repos), {
+	await c.env.CACHE.put(`${username}:repos`, JSON.stringify(output), {
 		expirationTtl: 60 * 60,
 	});
 
-	return c.json({ repos, count });
+	return c.json(output);
 });
 
-export default app satisfies ExportedHandler<Bindings>;
+export default app satisfies ExportedHandler<Env>;
