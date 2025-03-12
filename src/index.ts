@@ -1,11 +1,37 @@
+import { Ai } from "@cloudflare/ai";
 import { Hono } from "hono";
 
-export interface Env { }
+export interface Env {
+	AI: Ai
+}
 
-const app = new Hono<Env>();
+const app = new Hono<{ Bindings: Env }>();
 
-app.get("/", c => {
-	return c.json({ hello: "World" });
+app.get("/", async c => {
+	const query = c.req.query()
+
+
+	const askAi = query.ai === "true";
+	console.log({ query, askAi })
+
+	if (!askAi) {
+		console.log("no ai")
+		return c.json({ hello: "World" });
+	}
+
+
+	console.log("[ai]")
+	const ai = new Ai(c.env.AI);
+
+	const messages = [
+		{ role: "system", content: "Hello,You are a friendly assistent to generate greetings for our users" },
+		{ role: "user", content: "Hello, I am a user" }
+	];
+
+	const inputs = { messages }
+	const res = await ai.run("@cf/meta/llama-3-8b-instruct", inputs)
+
+	return c.json(res);
 });
 
 export default app satisfies ExportedHandler<Env>;
